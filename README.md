@@ -9,7 +9,7 @@ Andere nodige software is java en tmux. (het bash script regelt dit voor jou)
 
 RUN DIT SCRIPT MAAR 1 KEER PER MACHINE
 
-(zie video die je bij deze link kreeg) of
+(zie video die je bij deze link kreeg) [link](https://youtu.be/xV8rDcUkTLc) of
 1. Copy en paste de code in een Github codespace.
 2. chmod +x nameOfScript.sh
 3. ./nameOfScript.sh "ngrok authentification token" # dit is gratis te verkrijgen via ngrok
