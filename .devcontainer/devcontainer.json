@@ -1,0 +1,9 @@
+{
+  "name": "My Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "bash ./server.sh",
+  "remoteUser": "root"
+}
+
