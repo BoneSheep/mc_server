@@ -5,7 +5,7 @@ FROM ubuntu:22.04
 RUN apt-get update && apt-get install -y \
     sudo \
     wget \
-    openjdk-17-jdk \
+    openjdk-21-jdk \
     tmux \
     tar \
     curl \
