@@ -5,11 +5,11 @@
 ######
 
 # update the node
-#sudo apt update -y
-#sudo apt upgrade -y
+sudo apt update -y
+sudo apt upgrade -y
 
 # install the jdk
-#sudo apt install openjdk-17-jdk -y
+sudo apt install openjdk-17-jdk -y
 
 ######
 
