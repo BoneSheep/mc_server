@@ -14,6 +14,11 @@ RUN apt-get update && apt-get install -y \
 # Set the working directory
 WORKDIR /workspace
 
+COPY . .
+
+# Debugging: List all files in the workspace
+RUN ls -al /workspace
+
 # Ensure the script is executable
 RUN chmod +x ./server.sh
 
