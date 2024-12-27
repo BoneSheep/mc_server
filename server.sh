@@ -1,11 +1,17 @@
 #!/bin/bash
 
+# uncommend this if not in devcontainer
+
+######
+
 # update the node
-sudo apt update -y
-sudo apt upgrade -y
+#sudo apt update -y
+#sudo apt upgrade -y
 
 # install the jdk
-sudo apt install openjdk-17-jdk -y
+#sudo apt install openjdk-17-jdk -y
+
+######
 
 # get minecraft server for 1.21.1
 wget https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar
