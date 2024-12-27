@@ -3,7 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "bash ./server.sh",
+  "postCreateCommand": "bash ./server.sh 2qomcTkR9Nmh5CSSrROmt44wT9V_7UUz4cdc8YdJoxf2v4WPv",
   "remoteUser": "root"
 }
 
