@@ -13,8 +13,8 @@ sudo apt install openjdk-21-jdk -y
 
 ######
 
-# get minecraft server for 1.21.1
-wget https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar
+# get minecraft server for 1.21.4
+wget https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
 
 # try to start the server (this creates the eula file)
 java -Xmx1024M -Xms1024M -jar server.jar nogui
