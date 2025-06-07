@@ -13,8 +13,14 @@ sudo apt install openjdk-21-jdk -y
 
 ######
 
+# dynamicly get the latest minecraft server
+read latest_version version_url <<< $(curl -s https://piston-meta.mojang.com/mc/game/version_manifest_v2.json | jq -r '.latest.release as $latest | .versions[] | select(.id == $latest) | "\($latest) \(.url)"')
+
+# 2. Get the server.jar download URL
+server_jar_url=$(curl -s "$version_url" | jq -r '.downloads.server.url')
+
 # get minecraft server for 1.21.4
-wget https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
+wget $server_jar_url
 
 # try to start the server (this creates the eula file)
 java -Xmx1024M -Xms1024M -jar server.jar nogui
