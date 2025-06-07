@@ -28,8 +28,8 @@ sudo apt install openjdk-21-jdk -y
 
 ######
 
-# dynamicly get the latest minecraft server
-curl -s "$(curl -s https://piston-meta.mojang.com/mc/game/version_manifest_v2.json | jq -r '.latest.release as $v | .versions[] | select(.id == $v) | .url' | xargs curl -s | jq -r '.downloads.server.url')" -o server.jar
+# TODO dynamicly get the latest minecraft server
+wget https://piston-data.mojang.com/v1/objects/e6ec2f64e6080b9b5d9b471b291c33cc7f509733/server.jar
 
 # try to start the server (this creates the eula file)
 java -Xmx1024M -Xms1024M -jar server.jar nogui
