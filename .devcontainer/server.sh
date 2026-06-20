@@ -1,142 +1,54 @@
 #!/bin/bash
+set -euo pipefail
 
-# uncommend this if not in devcontainer
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <ngrok-auth-token>"
+  exit 1
+fi
 
-######
+NGROK_AUTH_TOKEN="$1"
 
-# update the node
+# Update the package lists and install required packages
 sudo apt update -y
 sudo apt upgrade -y
+sudo apt install -y openjdk-25-jdk wget tar curl tmux
 
-# install the jdk
-sudo apt install openjdk-21-jdk -y
+# Download the Minecraft server jar if not present
+if [ ! -f server.jar ]; then
+  wget https://piston-data.mojang.com/v1/objects/823e2250d24b3ddac457a60c92a6a941943fcd6a/server.jar
+fi
 
-######
+# Accept the EULA before the server starts
+cat > eula.txt <<'EOF'
+eula=true
+EOF
 
-#!/bin/bash
+# Installeer ngrok alleen als het nog niet beschikbaar is
+if ! command -v ngrok >/dev/null 2>&1; then
+  curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+    | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
 
-# uncommend this if not in devcontainer
+  echo "deb https://ngrok-agent.s3.amazonaws.com bookworm main" \
+    | sudo tee /etc/apt/sources.list.d/ngrok.list >/dev/null
 
-######
+  sudo apt update
+  sudo apt install -y ngrok
+fi
 
-# update the node
-sudo apt update -y
-sudo apt upgrade -y
 
-# install the jdk
-sudo apt install openjdk-21-jdk -y
+ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
 
-######
+# Create a detached tmux session for the Minecraft server and ngrok forwarding
+SESSION_NAME="mc_server"
 
-# TODO dynamicly get the latest minecraft server
-wget https://piston-data.mojang.com/v1/objects/823e2250d24b3ddac457a60c92a6a941943fcd6a/server.jar
-
-# try to start the server (this creates the eula file)
-java -Xmx1024M -Xms1024M -jar server.jar nogui
-
-# now edit the eula file
-file="eula.txt"
-
-if [ -s "$file" ]; then
-    # Remove the last line from the file
-    sed -i '$ d' "$file"
-
-    # Append a new line at the end of the file
-    echo "eula=true" >> "$file"
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+  echo "Tmux session '$SESSION_NAME' already exists. Reusing it."
 else
-    echo "File $file does not exist or is empty."
+  tmux new-session -d -s "$SESSION_NAME" -n 'minecraft'
+  tmux send-keys -t "$SESSION_NAME":0.0 "java -Xmx1024M -Xms1024M -jar server.jar nogui" C-m
+  tmux split-window -h -t "$SESSION_NAME":0
+  tmux send-keys -t "$SESSION_NAME":0.1 "ngrok tcp 25565" C-m
 fi
 
-# get ngrok (port forwarding)
-wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3stable-linux-amd64.tgz
-tar -xvzf ngrok-v3stable-linux-amd64.tgz
-./ngrok authtoken $1
-
-# make 2 terminals (pannes)
-# pane1 for the server
-# pane2 for port forwarding
-
-# Check if tmux is installed, if not, install it
-if ! command -v tmux &> /dev/null; then
-  echo "tmux not found. Installing..."
-  sudo apt-get update
-  sudo apt-get install -y tmux
-fi
-
-# Create a new tmux session named 'my_session' with one window
-tmux new-session -d -s my_session -n 'MainWindow'
-
-# Split the window into two horizontal panes
-tmux split-window -h
-
-command_pane1="java -Xmx12288M -Xms12288M -jar server.jar nogui; exec bash"
-command_pane2="./ngrok tcp 25565; exec bash"
-
-# Send commands to panes
-tmux send-keys -t my_session:0.0 "$command_pane1" C-m
-
-# uit testing bleek dat de server klaar komt (ludo reference) na 20 seconden -_-
-for (( i = 20; i >= 1; i-- )); do
-    echo "Setting up your Minecraft 1.21 server and IP in $i seconds"
-    sleep 1;
-done
-
-tmux send-keys -t my_session:0.1 "$command_pane2" C-m
-
-# Attach to the tmux session
-tmux attach-session -t my_session
-
-# try to start the server (this creates the eula file)
-java -Xmx1024M -Xms1024M -jar server.jar nogui
-
-# now edit the eula file
-file="eula.txt"
-
-if [ -s "$file" ]; then
-    # Remove the last line from the file
-    sed -i '$ d' "$file"
-
-    # Append a new line at the end of the file
-    echo "eula=true" >> "$file"
-else
-    echo "File $file does not exist or is empty."
-fi
-
-# get ngrok (port forwarding)
-wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3stable-linux-amd64.tgz
-tar -xvzf ngrok-v3stable-linux-amd64.tgz
-./ngrok authtoken $1
-
-# make 2 terminals (pannes)
-# pane1 for the server
-# pane2 for port forwarding
-
-# Check if tmux is installed, if not, install it
-if ! command -v tmux &> /dev/null; then
-  echo "tmux not found. Installing..."
-  sudo apt-get update
-  sudo apt-get install -y tmux
-fi
-
-# Create a new tmux session named 'my_session' with one window
-tmux new-session -d -s my_session -n 'MainWindow'
-
-# Split the window into two horizontal panes
-tmux split-window -h
-
-command_pane1="java -Xmx12288M -Xms12288M -jar server.jar nogui; exec bash"
-command_pane2="./ngrok tcp 25565; exec bash"
-
-# Send commands to panes
-tmux send-keys -t my_session:0.0 "$command_pane1" C-m
-
-# uit testing bleek dat de server klaar komt (ludo reference) na 20 seconden -_-
-for (( i = 20; i >= 1; i-- )); do
-    echo "Setting up your Minecraft 1.21 server and IP in $i seconds"
-    sleep 1;
-done
-
-tmux send-keys -t my_session:0.1 "$command_pane2" C-m
-
-# Attach to the tmux session
-tmux attach-session -t my_session
+echo "Minecraft server and ngrok forwarding started in tmux session '$SESSION_NAME'."
+echo "Attach with: tmux attach-session -t $SESSION_NAME"
